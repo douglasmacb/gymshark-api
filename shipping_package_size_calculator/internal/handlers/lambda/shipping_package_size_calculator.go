@@ -5,13 +5,19 @@ import (
 	"github.com/douglasmacb/gymshark-api/shipping_package_size_calculator/internal/models"
 )
 
-type ShippingPackageSizeCalculator struct {
-	logger logging.Logger
+type Service interface {
+	ShippingPackageSizeCalculator(e models.ShippingPackageSizeCalculator) ([]string, error)
 }
 
-func New(log logging.Logger) ShippingPackageSizeCalculator {
+type ShippingPackageSizeCalculator struct {
+	logger  logging.Logger
+	service Service
+}
+
+func New(log logging.Logger, srv Service) ShippingPackageSizeCalculator {
 	return ShippingPackageSizeCalculator{
-		logger: log,
+		logger:  log,
+		service: srv,
 	}
 }
 

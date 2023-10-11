@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	handler "github.com/douglasmacb/gymshark-api/shipping_package_size_calculator/internal/handlers/lambda"
 	"github.com/douglasmacb/gymshark-api/shipping_package_size_calculator/internal/logging"
+	"github.com/douglasmacb/gymshark-api/shipping_package_size_calculator/internal/services"
 )
 
 func main() {
@@ -22,7 +23,8 @@ func run() error {
 		return fmt.Errorf("error loading log config: %s", err)
 	}
 
-	lambda.Start(handler.New(logger))
+	srv := services.New(logger)
+	lambda.Start(handler.New(logger, srv))
 
 	return nil
 }
