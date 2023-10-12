@@ -25,5 +25,10 @@ func (s ShippingPackageSizeCalculator) Handler(e models.ShippingPackageSizeCalcu
 
 	s.logger.Info("handling ShippingPackageSizeCalculator event", logging.Int("numberOfItemsOrdered", e.NumberOfItemsOrdered))
 
-	return []string{""}, nil
+	packages, err := s.service.ShippingPackageSizeCalculator(e)
+	if err != nil {
+		return nil, err
+	}
+
+	return packages, nil
 }
