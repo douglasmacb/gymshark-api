@@ -42,9 +42,9 @@ func Test_calculateShippingPackages(t *testing.T) {
 			},
 			want: map[int]models.ShippingPackage{
 				packagesSizes[0]: {
-					NumberOfItems: 1,
-					IsFull:        false,
-					Size:          250,
+					Quantity: 1,
+					IsFull:   false,
+					Size:     250,
 				},
 			},
 		},
@@ -56,9 +56,9 @@ func Test_calculateShippingPackages(t *testing.T) {
 			},
 			want: map[int]models.ShippingPackage{
 				packagesSizes[0]: {
-					NumberOfItems: 1,
-					IsFull:        true,
-					Size:          250,
+					Quantity: 1,
+					IsFull:   true,
+					Size:     250,
 				},
 			},
 		},
@@ -70,9 +70,9 @@ func Test_calculateShippingPackages(t *testing.T) {
 			},
 			want: map[int]models.ShippingPackage{
 				packagesSizes[1]: {
-					NumberOfItems: 1,
-					IsFull:        false,
-					Size:          0,
+					Quantity: 1,
+					IsFull:   false,
+					Size:     0,
 				},
 			},
 		},
@@ -84,14 +84,14 @@ func Test_calculateShippingPackages(t *testing.T) {
 			},
 			want: map[int]models.ShippingPackage{
 				packagesSizes[0]: {
-					NumberOfItems: 1,
-					IsFull:        false,
-					Size:          250,
+					Quantity: 1,
+					IsFull:   false,
+					Size:     250,
 				},
 				packagesSizes[1]: {
-					NumberOfItems: 1,
-					IsFull:        true,
-					Size:          500,
+					Quantity: 1,
+					IsFull:   true,
+					Size:     500,
 				},
 			},
 		},
@@ -103,19 +103,19 @@ func Test_calculateShippingPackages(t *testing.T) {
 			},
 			want: map[int]models.ShippingPackage{
 				packagesSizes[0]: {
-					NumberOfItems: 1,
-					IsFull:        false,
-					Size:          250,
+					Quantity: 1,
+					IsFull:   false,
+					Size:     250,
 				},
 				packagesSizes[3]: {
-					NumberOfItems: 1,
-					IsFull:        true,
-					Size:          2000,
+					Quantity: 1,
+					IsFull:   true,
+					Size:     2000,
 				},
 				packagesSizes[4]: {
-					NumberOfItems: 2,
-					IsFull:        true,
-					Size:          5000,
+					Quantity: 2,
+					IsFull:   true,
+					Size:     5000,
 				},
 			},
 		},
@@ -157,8 +157,8 @@ func Test_preventWastingPackages(t *testing.T) {
 			},
 			want: map[int]models.ShippingPackage{
 				packagesSizes[1]: {
-					NumberOfItems: 1,
-					IsFull:        false,
+					Quantity: 1,
+					IsFull:   false,
 				},
 			},
 		},
@@ -261,9 +261,9 @@ func Test_calculate(t *testing.T) {
 			},
 			want: []models.ShippingPackage{
 				{
-					Size:          250,
-					NumberOfItems: 1,
-					IsFull:        true,
+					Size:     250,
+					Quantity: 1,
+					IsFull:   true,
 				},
 			},
 			wantErr: false,
@@ -293,9 +293,9 @@ func Test_calculate(t *testing.T) {
 			},
 			want: []models.ShippingPackage{
 				{
-					Size:          500,
-					NumberOfItems: 1,
-					IsFull:        true,
+					Size:     500,
+					Quantity: 1,
+					IsFull:   true,
 				},
 			},
 			wantErr: false,
@@ -313,14 +313,14 @@ func Test_calculate(t *testing.T) {
 
 			want: []models.ShippingPackage{
 				{
-					Size:          5000,
-					NumberOfItems: 2,
-					IsFull:        true,
+					Size:     5000,
+					Quantity: 2,
+					IsFull:   true,
 				},
 				{
-					Size:          2000,
-					NumberOfItems: 1,
-					IsFull:        true,
+					Size:     2000,
+					Quantity: 1,
+					IsFull:   true,
 				},
 			},
 			wantErr: false,
@@ -381,14 +381,14 @@ func TestShippingPackageSizeCalculator_ShippingPackageSizeCalculator(t *testing.
 			},
 			want: []models.ShippingPackage{
 				{
-					NumberOfItems: 2,
-					Size:          5000,
-					IsFull:        true,
+					Quantity: 2,
+					Size:     5000,
+					IsFull:   true,
 				},
 				{
-					NumberOfItems: 1,
-					Size:          2000,
-					IsFull:        true,
+					Quantity: 1,
+					Size:     2000,
+					IsFull:   true,
 				},
 			},
 			wantErr: false,

@@ -88,19 +88,19 @@ func calculateShippingPackages(numberOfItemsOrdered int, packageSizes []int) map
 		shippingPackage.Size = nearestPackageSize
 
 		// Update the package number of items.
-		shippingPackage.NumberOfItems++
+		shippingPackage.Quantity++
 
 		// Store the updated shipping package back in the map.
 		shippingPackages[nearestPackageSize] = shippingPackage
 
 		// Check if additional packages of the same type are really required to prevent waste.
-		currentPackageCount := shippingPackage.NumberOfItems
+		currentPackageCount := shippingPackage.Quantity
 		if currentPackageCount > 1 {
 			nextPackageSizeIndex := nearestPackageSizeIndex + 1
 
 			if nextPackageSizeIndex < len(packageSizes) {
 				nextPackageSize := packageSizes[nextPackageSizeIndex]
-				preventWastingPackages(nearestPackageSize, nextPackageSize, shippingPackage.NumberOfItems, shippingPackages)
+				preventWastingPackages(nearestPackageSize, nextPackageSize, shippingPackage.Quantity, shippingPackages)
 			}
 		}
 
@@ -118,7 +118,7 @@ func preventWastingPackages(currentPackageSize int, nextPackageSize int, current
 	if expectedNextPackageSize == nextPackageSize {
 		// Increment the count of the next shipping package.
 		nextShippingPackage := shippingPackages[nextPackageSize]
-		nextShippingPackage.NumberOfItems++
+		nextShippingPackage.Quantity++
 		shippingPackages[nextPackageSize] = nextShippingPackage
 
 		// Remove the current package size from the map since it's no longer needed.

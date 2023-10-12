@@ -20,9 +20,9 @@ type mockService struct {
 
 var shippingPackages = []models.ShippingPackage{
 	{
-		NumberOfItems: 1,
-		Size:          250,
-		IsFull:        false,
+		Quantity: 1,
+		Size:     250,
+		IsFull:   false,
 	},
 }
 
@@ -156,9 +156,9 @@ func TestShippingPackageSizeCalculator_Handler(t *testing.T) {
 				service: &mockService{
 					shippingPackageSizeCalculatorResp: []models.ShippingPackage{
 						{
-							NumberOfItems: 1,
-							Size:          250,
-							IsFull:        false,
+							Quantity: 1,
+							Size:     250,
+							IsFull:   false,
 						},
 					},
 				},
