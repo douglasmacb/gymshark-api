@@ -27,10 +27,6 @@ func (s ShippingPackageSizeCalculator) ShippingPackageSizeCalculator(e models.Sh
 		return nil, err
 	}
 
-	if len(packages) == 0 {
-		return nil, fmt.Errorf("no complete packages found for the given number of items ordered %d", e.NumberOfItemsOrdered)
-	}
-
 	return packages, nil
 }
 

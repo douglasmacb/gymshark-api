@@ -52,8 +52,10 @@ func TestShippingPackageSizeCalculator_Handler(t *testing.T) {
 	unmarshallResponseError := mockErrorResponse(http.StatusInternalServerError, ErrorFailedToUnmarshalRequestBody)
 	negativeNumberOfItemsResponseError := mockErrorResponse(http.StatusBadRequest, ErrorInvalidNumberOfItemsOrdered)
 	internalServerResponseError := mockErrorResponse(http.StatusInternalServerError, "error")
+	noCompletePacksResponseError := mockErrorResponse(http.StatusNotFound, ErrorNoCompletePackagesFound)
 	successResponse := mockSuccessResponse([]string{"1 x 250"})
 	requestBody, _ := json.Marshal(models.ShippingPackageSizeCalculator{NumberOfItemsOrdered: 250})
+	noCompletePacksRequestBody, _ := json.Marshal(models.ShippingPackageSizeCalculator{NumberOfItemsOrdered: 1})
 
 	type fields struct {
 		service Service
@@ -117,6 +119,25 @@ func TestShippingPackageSizeCalculator_Handler(t *testing.T) {
 			want: events.APIGatewayProxyResponse{
 				StatusCode: http.StatusInternalServerError,
 				Body:       string(internalServerResponseError),
+				Headers:    map[string]string{"Content-Type": "application/json"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "shipping package size calculator handler, should return an error if no complete packages were found",
+			fields: fields{
+				service: &mockService{
+					shippingPackageSizeCalculatorResp: []string{},
+				},
+			},
+			args: args{
+				e: events.APIGatewayProxyRequest{
+					Body: string(noCompletePacksRequestBody),
+				},
+			},
+			want: events.APIGatewayProxyResponse{
+				StatusCode: http.StatusNotFound,
+				Body:       string(noCompletePacksResponseError),
 				Headers:    map[string]string{"Content-Type": "application/json"},
 			},
 			wantErr: false,

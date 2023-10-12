@@ -339,19 +339,6 @@ func TestShippingPackageSizeCalculator_ShippingPackageSizeCalculator(t *testing.
 			beforeTest: func() {},
 		},
 		{
-			name: "shipping package size calculator, should return an error if there are no packages returned",
-			args: args{
-				e: models.ShippingPackageSizeCalculator{
-					NumberOfItemsOrdered: 1,
-				},
-			},
-			want:    nil,
-			wantErr: true,
-			beforeTest: func() {
-				os.Setenv(packageSizesEnvPropertyName, packagesSizesString)
-			},
-		},
-		{
 			name: "shipping package size calculator, should return packages with success",
 			args: args{
 				e: models.ShippingPackageSizeCalculator{

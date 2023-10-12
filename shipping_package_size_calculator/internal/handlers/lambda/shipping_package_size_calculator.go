@@ -12,6 +12,7 @@ import (
 const (
 	ErrorInvalidNumberOfItemsOrdered  = "Invalid value for numberOfItemsOrdered: it should be a positive integer"
 	ErrorFailedToUnmarshalRequestBody = "Failed to unmarshall request body"
+	ErrorNoCompletePackagesFound      = "no complete packages found for the given number of items"
 )
 
 type Service interface {
@@ -47,6 +48,10 @@ func (s ShippingPackageSizeCalculator) Handler(e events.APIGatewayProxyRequest) 
 	packages, err := s.service.ShippingPackageSizeCalculator(request)
 	if err != nil {
 		return transport.SendError(http.StatusInternalServerError, err.Error())
+	}
+
+	if len(packages) == 0 {
+		return transport.SendError(http.StatusNotFound, ErrorNoCompletePackagesFound)
 	}
 
 	return transport.Send(http.StatusOK, packages)
