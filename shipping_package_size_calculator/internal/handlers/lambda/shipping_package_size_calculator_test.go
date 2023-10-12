@@ -1,15 +1,61 @@
 package lambda
 
 import (
+	"encoding/json"
+	"errors"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/douglasmacb/gymshark-api/shipping_package_size_calculator/internal/logging"
+	"github.com/douglasmacb/gymshark-api/shipping_package_size_calculator/internal/models"
+	transport "github.com/douglasmacb/gymshark-api/shipping_package_size_calculator/internal/transport/lambda"
+	"net/http"
 	"reflect"
 	"testing"
 )
 
+type mockService struct {
+	Service
+	shippingPackageSizeCalculatorResp  []string
+	ShippingPackageSizeCalculatorError error
+}
+
+func (m *mockService) ShippingPackageSizeCalculator(_ models.ShippingPackageSizeCalculator) ([]string, error) {
+	if m.ShippingPackageSizeCalculatorError != nil {
+		return nil, m.ShippingPackageSizeCalculatorError
+	}
+	return m.shippingPackageSizeCalculatorResp, nil
+}
+
+func mockErrorResponse(status int, message string) []byte {
+	response := transport.Response{
+		Success: false,
+		Status:  status,
+		Message: message,
+	}
+	responseBytes, _ := json.Marshal(response)
+
+	return responseBytes
+}
+
+func mockSuccessResponse(data any) []byte {
+	response := transport.Response{
+		Success: true,
+		Status:  http.StatusOK,
+		Data:    data,
+	}
+	responseBytes, _ := json.Marshal(response)
+	return responseBytes
+}
+
 func TestShippingPackageSizeCalculator_Handler(t *testing.T) {
+	log, _ := logging.New()
+
+	unmarshallResponseError := mockErrorResponse(http.StatusInternalServerError, ErrorFailedToUnmarshalRequestBody)
+	negativeNumberOfItemsResponseError := mockErrorResponse(http.StatusBadRequest, ErrorInvalidNumberOfItemsOrdered)
+	internalServerResponseError := mockErrorResponse(http.StatusInternalServerError, "error")
+	successResponse := mockSuccessResponse([]string{"1 x 250"})
+	requestBody, _ := json.Marshal(models.ShippingPackageSizeCalculator{NumberOfItemsOrdered: 250})
+
 	type fields struct {
-		logger  logging.Logger
 		service Service
 	}
 	type args struct {
@@ -22,12 +68,83 @@ func TestShippingPackageSizeCalculator_Handler(t *testing.T) {
 		want    events.APIGatewayProxyResponse
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "shipping package size calculator handler, should return an error if unmarshall throws an error",
+			fields: fields{
+				service: &mockService{},
+			},
+			args: args{
+				e: events.APIGatewayProxyRequest{
+					Body: "",
+				},
+			},
+			want: events.APIGatewayProxyResponse{
+				StatusCode: http.StatusInternalServerError,
+				Body:       string(unmarshallResponseError),
+				Headers:    map[string]string{"Content-Type": "application/json"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "shipping package size calculator handler, should return an error if numberOfItemsOrdered is negative",
+			fields: fields{
+				service: &mockService{},
+			},
+			args: args{
+				e: events.APIGatewayProxyRequest{
+					Body: string(negativeNumberOfItemsResponseError),
+				},
+			},
+			want: events.APIGatewayProxyResponse{
+				StatusCode: http.StatusBadRequest,
+				Body:       string(negativeNumberOfItemsResponseError),
+				Headers:    map[string]string{"Content-Type": "application/json"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "shipping package size calculator handler, should return an error if service throws an error",
+			fields: fields{
+				service: &mockService{
+					ShippingPackageSizeCalculatorError: errors.New("error"),
+				},
+			},
+			args: args{
+				e: events.APIGatewayProxyRequest{
+					Body: string(requestBody),
+				},
+			},
+			want: events.APIGatewayProxyResponse{
+				StatusCode: http.StatusInternalServerError,
+				Body:       string(internalServerResponseError),
+				Headers:    map[string]string{"Content-Type": "application/json"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "shipping package size calculator handler, should return packages with success",
+			fields: fields{
+				service: &mockService{
+					shippingPackageSizeCalculatorResp: []string{"1 x 250"},
+				},
+			},
+			args: args{
+				e: events.APIGatewayProxyRequest{
+					Body: string(requestBody),
+				},
+			},
+			want: events.APIGatewayProxyResponse{
+				StatusCode: http.StatusOK,
+				Body:       string(successResponse),
+				Headers:    map[string]string{"Content-Type": "application/json"},
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := ShippingPackageSizeCalculator{
-				logger:  tt.fields.logger,
+				logger:  log,
 				service: tt.fields.service,
 			}
 			got, err := s.Handler(tt.args.e)
