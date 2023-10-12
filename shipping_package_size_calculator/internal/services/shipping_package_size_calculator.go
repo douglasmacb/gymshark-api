@@ -21,7 +21,7 @@ func New(log logging.Logger) ShippingPackageSizeCalculator {
 }
 
 func (s ShippingPackageSizeCalculator) ShippingPackageSizeCalculator(e models.ShippingPackageSizeCalculator) ([]string, error) {
-	s.logger.Info("serving ShippingPackageSizeCalculator event", logging.Int("numberOfItemsOrdered", e.NumberOfItemsOrdered))
+	s.logger.Info("Serving ShippingPackageSizeCalculator event", logging.Int("numberOfItemsOrdered", e.NumberOfItemsOrdered))
 
 	if e.NumberOfItemsOrdered <= 0 {
 		return nil, errors.New("invalid value for numberOfItemsOrdered: it should be a positive integer")

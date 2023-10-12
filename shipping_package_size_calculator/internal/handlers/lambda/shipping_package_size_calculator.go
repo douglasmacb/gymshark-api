@@ -21,14 +21,18 @@ func New(log logging.Logger, srv Service) ShippingPackageSizeCalculator {
 	}
 }
 
-func (s ShippingPackageSizeCalculator) Handler(e models.ShippingPackageSizeCalculator) ([]string, error) {
-
-	s.logger.Info("handling ShippingPackageSizeCalculator event", logging.Int("numberOfItemsOrdered", e.NumberOfItemsOrdered))
+func (s ShippingPackageSizeCalculator) Handler(e models.ShippingPackageSizeCalculator) (models.ShippingPackageSizeCalculatorResponse, error) {
+	s.logger.Info("Handling ShippingPackageSizeCalculator event", logging.Int("numberOfItemsOrdered", e.NumberOfItemsOrdered))
 
 	packages, err := s.service.ShippingPackageSizeCalculator(e)
 	if err != nil {
-		return nil, err
+		return models.ShippingPackageSizeCalculatorResponse{
+			Message: "Failed",
+		}, err
 	}
 
-	return packages, nil
+	return models.ShippingPackageSizeCalculatorResponse{
+		Message: "Succeeded",
+		Data:    packages,
+	}, nil
 }
