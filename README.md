@@ -15,6 +15,9 @@ shipping-package-size-calculator lambda - Responsible for calculating the number
 * golangci-lint
 * govulncheck
 
+## Brainstorm
+![alt text](https://i.ibb.co/Kqm61bF/gymshark-api-brainstorm.png)
+
 ## Test
 At the root path of the gymshark-api, run the following command to execute the unit tests
 ```bash
