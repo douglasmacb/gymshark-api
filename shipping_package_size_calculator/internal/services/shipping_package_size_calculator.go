@@ -2,7 +2,6 @@ package services
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/douglasmacb/gymshark-api/shipping_package_size_calculator/config"
 	"github.com/douglasmacb/gymshark-api/shipping_package_size_calculator/internal/logging"
@@ -23,17 +22,13 @@ func New(log logging.Logger) ShippingPackageSizeCalculator {
 func (s ShippingPackageSizeCalculator) ShippingPackageSizeCalculator(e models.ShippingPackageSizeCalculator) ([]string, error) {
 	s.logger.Info("Serving ShippingPackageSizeCalculator event", logging.Int("numberOfItemsOrdered", e.NumberOfItemsOrdered))
 
-	if e.NumberOfItemsOrdered <= 0 {
-		return nil, errors.New("invalid value for numberOfItemsOrdered: it should be a positive integer")
-	}
-
 	packages, err := calculate(e)
 	if err != nil {
 		return nil, err
 	}
 
 	if len(packages) == 0 {
-		return nil, errors.New("no complete packages found for the given number of items ordered")
+		return nil, fmt.Errorf("no complete packages found for the given number of items ordered %d", e.NumberOfItemsOrdered)
 	}
 
 	return packages, nil
