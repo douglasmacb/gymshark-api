@@ -3,6 +3,7 @@ package lambda
 import (
 	"encoding/json"
 	"github.com/aws/aws-lambda-go/events"
+	"net/http"
 )
 
 type Response struct {
@@ -12,50 +13,56 @@ type Response struct {
 	Status  int    `json:"status"`
 }
 
-func SendError(statusCode int, errorMessage string) (events.APIGatewayProxyResponse, error) {
-
+func buildErrorResponseBody(status int, message string) []byte {
 	responseBody := Response{
-		Status:  statusCode,
-		Message: errorMessage,
+		Status:  status,
+		Message: message,
 		Success: false,
 	}
 	body, _ := json.Marshal(responseBody)
 
-	return events.APIGatewayProxyResponse{
-		Headers:    map[string]string{"Content-Type": "application/json"},
-		StatusCode: statusCode,
-		Body:       string(body),
-	}, nil
+	return body
 }
 
-func SendValidationError(statusCode int, validationMessage string) (events.APIGatewayProxyResponse, error) {
+func buildSuccessResponseBody(data any) []byte {
 	responseBody := Response{
-		Status:  statusCode,
-		Message: validationMessage,
-		Success: false,
-	}
-	body, _ := json.Marshal(responseBody)
-
-	return events.APIGatewayProxyResponse{
-		Headers:    map[string]string{"Content-Type": "application/json"},
-		StatusCode: statusCode,
-		Body:       string(body),
-	}, nil
-}
-
-func Send(statusCode int, data any) (events.APIGatewayProxyResponse, error) {
-
-	responseBody := Response{
-		Status:  statusCode,
+		Status:  http.StatusOK,
 		Data:    data,
 		Success: true,
 	}
 
 	body, _ := json.Marshal(responseBody)
 
+	return body
+}
+
+func SendError(statusCode int, errorMessage string) (events.APIGatewayProxyResponse, error) {
+	responseBody := buildErrorResponseBody(statusCode, errorMessage)
+
 	return events.APIGatewayProxyResponse{
 		Headers:    map[string]string{"Content-Type": "application/json"},
 		StatusCode: statusCode,
-		Body:       string(body),
+		Body:       string(responseBody),
+	}, nil
+}
+
+func SendValidationError(statusCode int, validationMessage string) (events.APIGatewayProxyResponse, error) {
+	responseBody := buildErrorResponseBody(statusCode, validationMessage)
+
+	return events.APIGatewayProxyResponse{
+		Headers:    map[string]string{"Content-Type": "application/json"},
+		StatusCode: statusCode,
+		Body:       string(responseBody),
+	}, nil
+}
+
+func Send(statusCode int, data any) (events.APIGatewayProxyResponse, error) {
+
+	responseBody := buildSuccessResponseBody(data)
+
+	return events.APIGatewayProxyResponse{
+		Headers:    map[string]string{"Content-Type": "application/json"},
+		StatusCode: statusCode,
+		Body:       string(responseBody),
 	}, nil
 }
