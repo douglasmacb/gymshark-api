@@ -29,7 +29,7 @@ resource "aws_lambda_function" "function" {
 
   environment {
     variables = {
-      PACKAGE_SIZES = "[250, 500, 1000, 2000, 5000]"
+      PACKAGE_SIZES = local.function_env_package_sizes
     }
   }
 }
