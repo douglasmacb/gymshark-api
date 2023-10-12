@@ -19,3 +19,15 @@
 
 # Go workspace file
 go.work
+
+# Terraform-specific files and directories
+/infra/terraform/*.tfstate
+/infra/terraform/*.tfstate.*
+/infra/terraform/*.tfplan
+/infra/terraform/*.lock.hcl
+/infra/terraform/tf_generated
+
+# Local .terraform directories (e.g., created by Terraform 0.11 and earlier)
+**/.terraform/
+
+

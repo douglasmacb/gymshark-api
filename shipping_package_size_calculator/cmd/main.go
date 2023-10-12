@@ -23,7 +23,7 @@ func run() error {
 	}
 
 	srv := services.New(logger)
-	lambda.Start(handler.New(logger, srv))
+	lambda.Start(handler.New(logger, srv).Handler)
 
 	return nil
 }
