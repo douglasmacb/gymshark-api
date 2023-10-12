@@ -57,8 +57,16 @@ RESPONSE BODY:
 
 {
     "data": [
-        "2 x 5000",
-        "1 x 2000"
+        {
+            "quantity": 2,
+            "size": 5000,
+            "isFull": true
+        },
+        {
+            "quantity": 1,
+            "size": 2000,
+            "isFull": true
+        }
     ],
     "success": true,
     "status": 200
@@ -70,7 +78,7 @@ RESPONSE BODY:
 
 {
     "success": false,
-    "message": "no complete packages found for the given number of items ordered",
-    "status": 400
+    "message": "No complete packages found for the given number of items",
+    "status": 404
 }
 ```
