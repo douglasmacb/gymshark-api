@@ -16,7 +16,7 @@ const (
 )
 
 type Service interface {
-	ShippingPackageSizeCalculator(e models.ShippingPackageSizeCalculator) ([]string, error)
+	ShippingPackageSizeCalculator(e models.ShippingPackageSizeCalculator) ([]models.ShippingPackage, error)
 }
 
 type ShippingPackageSizeCalculator struct {

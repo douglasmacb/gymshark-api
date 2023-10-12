@@ -19,7 +19,7 @@ func New(log logging.Logger) ShippingPackageSizeCalculator {
 	}
 }
 
-func (s ShippingPackageSizeCalculator) ShippingPackageSizeCalculator(e models.ShippingPackageSizeCalculator) ([]string, error) {
+func (s ShippingPackageSizeCalculator) ShippingPackageSizeCalculator(e models.ShippingPackageSizeCalculator) ([]models.ShippingPackage, error) {
 	s.logger.Info("Serving ShippingPackageSizeCalculator event", logging.Int("numberOfItemsOrdered", e.NumberOfItemsOrdered))
 
 	packages, err := calculate(e)
@@ -47,7 +47,7 @@ func loadPackageSizes() ([]int, error) {
 	return packageSizes, nil
 }
 
-func calculate(e models.ShippingPackageSizeCalculator) ([]string, error) {
+func calculate(e models.ShippingPackageSizeCalculator) ([]models.ShippingPackage, error) {
 	// Load package sizes from environment variables or database (e.g., DynamoDB).
 	packageSizes, err := loadPackageSizes()
 	if err != nil {
@@ -55,13 +55,12 @@ func calculate(e models.ShippingPackageSizeCalculator) ([]string, error) {
 	}
 
 	shippingPackages := calculateShippingPackages(e.NumberOfItemsOrdered, packageSizes)
-	calculatedPackagesReadyForShipping := make([]string, 0, len(shippingPackages))
+	calculatedPackagesReadyForShipping := make([]models.ShippingPackage, 0, len(shippingPackages))
 
-	for packageSize, shippingPackage := range shippingPackages {
+	for _, shippingPackage := range shippingPackages {
 		// Only whole packs can be sent.
 		if shippingPackage.IsFull {
-			itemDescription := fmt.Sprintf("%d x %d", shippingPackage.NumberOfItems, packageSize)
-			calculatedPackagesReadyForShipping = append(calculatedPackagesReadyForShipping, itemDescription)
+			calculatedPackagesReadyForShipping = append(calculatedPackagesReadyForShipping, shippingPackage)
 		}
 	}
 
@@ -85,6 +84,8 @@ func calculateShippingPackages(numberOfItemsOrdered int, packageSizes []int) map
 		if remainingItems >= nearestPackageSize {
 			shippingPackage.IsFull = true
 		}
+
+		shippingPackage.Size = nearestPackageSize
 
 		// Update the package number of items.
 		shippingPackage.NumberOfItems++

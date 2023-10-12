@@ -44,6 +44,7 @@ func Test_calculateShippingPackages(t *testing.T) {
 				packagesSizes[0]: {
 					NumberOfItems: 1,
 					IsFull:        false,
+					Size:          250,
 				},
 			},
 		},
@@ -57,6 +58,7 @@ func Test_calculateShippingPackages(t *testing.T) {
 				packagesSizes[0]: {
 					NumberOfItems: 1,
 					IsFull:        true,
+					Size:          250,
 				},
 			},
 		},
@@ -70,6 +72,7 @@ func Test_calculateShippingPackages(t *testing.T) {
 				packagesSizes[1]: {
 					NumberOfItems: 1,
 					IsFull:        false,
+					Size:          0,
 				},
 			},
 		},
@@ -83,10 +86,12 @@ func Test_calculateShippingPackages(t *testing.T) {
 				packagesSizes[0]: {
 					NumberOfItems: 1,
 					IsFull:        false,
+					Size:          250,
 				},
 				packagesSizes[1]: {
 					NumberOfItems: 1,
 					IsFull:        true,
+					Size:          500,
 				},
 			},
 		},
@@ -100,14 +105,17 @@ func Test_calculateShippingPackages(t *testing.T) {
 				packagesSizes[0]: {
 					NumberOfItems: 1,
 					IsFull:        false,
+					Size:          250,
 				},
 				packagesSizes[3]: {
 					NumberOfItems: 1,
 					IsFull:        true,
+					Size:          2000,
 				},
 				packagesSizes[4]: {
 					NumberOfItems: 2,
 					IsFull:        true,
+					Size:          5000,
 				},
 			},
 		},
@@ -227,7 +235,7 @@ func Test_calculate(t *testing.T) {
 	tests := []struct {
 		name       string
 		args       args
-		want       []string
+		want       []models.ShippingPackage
 		wantErr    bool
 		beforeTest func()
 	}{
@@ -238,7 +246,7 @@ func Test_calculate(t *testing.T) {
 					NumberOfItemsOrdered: 1,
 				},
 			},
-			want:    []string{},
+			want:    []models.ShippingPackage{},
 			wantErr: false,
 			beforeTest: func() {
 				os.Setenv(packageSizesEnvPropertyName, packagesSizesString)
@@ -251,7 +259,13 @@ func Test_calculate(t *testing.T) {
 					NumberOfItemsOrdered: 250,
 				},
 			},
-			want:    []string{"1 x 250"},
+			want: []models.ShippingPackage{
+				{
+					Size:          250,
+					NumberOfItems: 1,
+					IsFull:        true,
+				},
+			},
 			wantErr: false,
 			beforeTest: func() {
 				os.Setenv(packageSizesEnvPropertyName, packagesSizesString)
@@ -264,7 +278,7 @@ func Test_calculate(t *testing.T) {
 					NumberOfItemsOrdered: 251,
 				},
 			},
-			want:    []string{},
+			want:    []models.ShippingPackage{},
 			wantErr: false,
 			beforeTest: func() {
 				os.Setenv(packageSizesEnvPropertyName, packagesSizesString)
@@ -277,7 +291,13 @@ func Test_calculate(t *testing.T) {
 					NumberOfItemsOrdered: 501,
 				},
 			},
-			want:    []string{"1 x 500"},
+			want: []models.ShippingPackage{
+				{
+					Size:          500,
+					NumberOfItems: 1,
+					IsFull:        true,
+				},
+			},
 			wantErr: false,
 			beforeTest: func() {
 				os.Setenv(packageSizesEnvPropertyName, packagesSizesString)
@@ -290,7 +310,19 @@ func Test_calculate(t *testing.T) {
 					NumberOfItemsOrdered: 12001,
 				},
 			},
-			want:    []string{"2 x 5000", "1 x 2000"},
+
+			want: []models.ShippingPackage{
+				{
+					Size:          5000,
+					NumberOfItems: 2,
+					IsFull:        true,
+				},
+				{
+					Size:          2000,
+					NumberOfItems: 1,
+					IsFull:        true,
+				},
+			},
 			wantErr: false,
 			beforeTest: func() {
 				os.Setenv(packageSizesEnvPropertyName, packagesSizesString)
@@ -323,7 +355,7 @@ func TestShippingPackageSizeCalculator_ShippingPackageSizeCalculator(t *testing.
 	tests := []struct {
 		name       string
 		args       args
-		want       []string
+		want       []models.ShippingPackage
 		wantErr    bool
 		beforeTest func()
 	}{
@@ -334,9 +366,11 @@ func TestShippingPackageSizeCalculator_ShippingPackageSizeCalculator(t *testing.
 					NumberOfItemsOrdered: 5,
 				},
 			},
-			want:       nil,
-			wantErr:    true,
-			beforeTest: func() {},
+			want:    nil,
+			wantErr: true,
+			beforeTest: func() {
+				os.Setenv(packageSizesEnvPropertyName, "")
+			},
 		},
 		{
 			name: "shipping package size calculator, should return packages with success",
@@ -345,7 +379,18 @@ func TestShippingPackageSizeCalculator_ShippingPackageSizeCalculator(t *testing.
 					NumberOfItemsOrdered: 12001,
 				},
 			},
-			want:    []string{"2 x 5000", "1 x 2000"},
+			want: []models.ShippingPackage{
+				{
+					NumberOfItems: 2,
+					Size:          5000,
+					IsFull:        true,
+				},
+				{
+					NumberOfItems: 1,
+					Size:          2000,
+					IsFull:        true,
+				},
+			},
 			wantErr: false,
 			beforeTest: func() {
 				os.Setenv(packageSizesEnvPropertyName, packagesSizesString)

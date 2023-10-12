@@ -5,6 +5,7 @@ type ShippingPackageSizeCalculator struct {
 }
 
 type ShippingPackage struct {
-	NumberOfItems int
-	IsFull        bool
+	NumberOfItems int  `json:"numberOfItems"`
+	Size          int  `json:"size"`
+	IsFull        bool `json:"isFull"`
 }

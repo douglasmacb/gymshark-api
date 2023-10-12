@@ -14,11 +14,19 @@ import (
 
 type mockService struct {
 	Service
-	shippingPackageSizeCalculatorResp  []string
+	shippingPackageSizeCalculatorResp  []models.ShippingPackage
 	ShippingPackageSizeCalculatorError error
 }
 
-func (m *mockService) ShippingPackageSizeCalculator(_ models.ShippingPackageSizeCalculator) ([]string, error) {
+var shippingPackages = []models.ShippingPackage{
+	{
+		NumberOfItems: 1,
+		Size:          250,
+		IsFull:        false,
+	},
+}
+
+func (m *mockService) ShippingPackageSizeCalculator(_ models.ShippingPackageSizeCalculator) ([]models.ShippingPackage, error) {
 	if m.ShippingPackageSizeCalculatorError != nil {
 		return nil, m.ShippingPackageSizeCalculatorError
 	}
@@ -53,7 +61,7 @@ func TestShippingPackageSizeCalculator_Handler(t *testing.T) {
 	negativeNumberOfItemsResponseError := mockErrorResponse(http.StatusBadRequest, ErrorInvalidNumberOfItemsOrdered)
 	internalServerResponseError := mockErrorResponse(http.StatusInternalServerError, "error")
 	noCompletePacksResponseError := mockErrorResponse(http.StatusNotFound, ErrorNoCompletePackagesFound)
-	successResponse := mockSuccessResponse([]string{"1 x 250"})
+	successResponse := mockSuccessResponse(shippingPackages)
 	requestBody, _ := json.Marshal(models.ShippingPackageSizeCalculator{NumberOfItemsOrdered: 250})
 	noCompletePacksRequestBody, _ := json.Marshal(models.ShippingPackageSizeCalculator{NumberOfItemsOrdered: 1})
 
@@ -127,7 +135,7 @@ func TestShippingPackageSizeCalculator_Handler(t *testing.T) {
 			name: "shipping package size calculator handler, should return an error if no complete packages were found",
 			fields: fields{
 				service: &mockService{
-					shippingPackageSizeCalculatorResp: []string{},
+					shippingPackageSizeCalculatorResp: []models.ShippingPackage{},
 				},
 			},
 			args: args{
@@ -146,7 +154,13 @@ func TestShippingPackageSizeCalculator_Handler(t *testing.T) {
 			name: "shipping package size calculator handler, should return packages with success",
 			fields: fields{
 				service: &mockService{
-					shippingPackageSizeCalculatorResp: []string{"1 x 250"},
+					shippingPackageSizeCalculatorResp: []models.ShippingPackage{
+						{
+							NumberOfItems: 1,
+							Size:          250,
+							IsFull:        false,
+						},
+					},
 				},
 			},
 			args: args{
