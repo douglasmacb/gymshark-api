@@ -12,7 +12,7 @@ import (
 const (
 	ErrorInvalidNumberOfItemsOrdered  = "Invalid value for numberOfItemsOrdered: it should be a positive integer"
 	ErrorFailedToUnmarshalRequestBody = "Failed to unmarshall request body"
-	ErrorNoCompletePackagesFound      = "no complete packages found for the given number of items"
+	ErrorNoCompletePackagesFound      = "No complete packages found for the given number of items"
 )
 
 type Service interface {
