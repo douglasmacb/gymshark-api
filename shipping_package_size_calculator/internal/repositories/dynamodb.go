@@ -1,4 +1,4 @@
-package database
+package repositories
 
 import (
 	"context"
@@ -6,6 +6,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"log"
+)
+
+const (
+	tablePartitionKeyName = "PK"
+	tableRangeKeyName     = "SK"
 )
 
 type DynamoDbQuery interface {
