@@ -30,6 +30,7 @@ resource "aws_lambda_function" "function" {
   environment {
     variables = {
       PACKAGE_SIZES = local.function_env_package_sizes
+      DYNAMODB_TABLE_NAME = "shipping"
     }
   }
 }

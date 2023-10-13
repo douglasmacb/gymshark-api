@@ -9,6 +9,13 @@ locals {
   binary_name  = local.function_name
   binary_path  = "${path.module}/tf_generated/${local.binary_name}"
   archive_path = "${path.module}/tf_generated/${local.function_name}.zip"
+
+  dynamodb_table_name = "shipping"
+  dynamodb_billing_mode    = "PROVISIONED"
+  dynamodb_read_capacity  = 20
+  dynamodb_write_capacity = 20
+  dynamodb_hash_key = "PK"
+  dynamodb_range_key = "SK"
 }
 
 output "binary_path" {

@@ -39,3 +39,28 @@ resource "aws_iam_role_policy_attachment" "lambda_logging_policy_attachment" {
   role       = aws_iam_role.lambda.id
   policy_arn = aws_iam_policy.function_logging_policy.arn
 }
+
+resource "aws_iam_policy" "dynamodb-lambda-policy" {
+  name = "DynamoDBLambdaPolicy"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:Query"
+        ]
+        Resource = [
+          aws_dynamodb_table.shipping-table.arn
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda-policy-attachment" {
+  role       = aws_iam_role.lambda.name
+  policy_arn = aws_iam_policy.dynamodb-lambda-policy.arn
+}
