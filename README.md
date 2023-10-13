@@ -23,10 +23,18 @@ At the root path of the gymshark-api, run the following command to execute the u
 ```bash
 make test
 ```
-
 ## Configuration
 
-The PACKAGE_SIZES environment variable is a required configuration that contains a list of package sizes. While an initial value is provided during Terraform provisioning, this approach offers flexibility by allowing modifications to package sizes without altering the implementation. As a next step, consider transitioning to a database table for managing package sizes.
+shipping-package-size-calculator
+* DYNAMODB_TABLE_NAME environment variable is a required configuration and it should contain the name of the DynamoDB table for shipping package sizes.
+
+## DynamoDB
+
+#### Access patterns:
+
+* Access pattern: Get All Shipping Package Sizes
+* Operation: Read
+* Result ordering: Descend order
 
 ## Deploy
 For deploying the lambda function to AWS cloud provider, you have to create a aws profile called gymshark-aws.

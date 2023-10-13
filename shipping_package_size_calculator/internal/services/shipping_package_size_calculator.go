@@ -1,28 +1,32 @@
 package services
 
 import (
-	"encoding/json"
-	"fmt"
-	"github.com/douglasmacb/gymshark-api/shipping_package_size_calculator/config"
+	"context"
 	"github.com/douglasmacb/gymshark-api/shipping_package_size_calculator/internal/logging"
 	"github.com/douglasmacb/gymshark-api/shipping_package_size_calculator/internal/models"
 	"math"
 )
 
-type ShippingPackageSizeCalculator struct {
-	logger logging.Logger
+type Repository interface {
+	ShippingPackagesSizes(ctx context.Context) ([]int, error)
 }
 
-func New(log logging.Logger) ShippingPackageSizeCalculator {
+type ShippingPackageSizeCalculator struct {
+	logger     logging.Logger
+	repository Repository
+}
+
+func New(log logging.Logger, repo Repository) ShippingPackageSizeCalculator {
 	return ShippingPackageSizeCalculator{
-		logger: log,
+		logger:     log,
+		repository: repo,
 	}
 }
 
 func (s ShippingPackageSizeCalculator) ShippingPackageSizeCalculator(e models.ShippingPackageSizeCalculator) ([]models.ShippingPackage, error) {
 	s.logger.Info("Serving ShippingPackageSizeCalculator event", logging.Int("numberOfItemsOrdered", e.NumberOfItemsOrdered))
 
-	packages, err := calculate(e)
+	packages, err := s.calculate(e)
 	if err != nil {
 		return nil, err
 	}
@@ -30,26 +34,19 @@ func (s ShippingPackageSizeCalculator) ShippingPackageSizeCalculator(e models.Sh
 	return packages, nil
 }
 
-// Load package sizes from environment variables or database (e.g., DynamoDB).
-func loadPackageSizes() ([]int, error) {
-	packageSizesFromEnv, err := config.PackageSizesFromEnv()
+func (s ShippingPackageSizeCalculator) loadPackagesSizes() ([]int, error) {
+
+	shippingPackagesSizes, err := s.repository.ShippingPackagesSizes(context.Background())
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: In the future, consider fetching package sizes from a database.
-	// For simplicity, we're using environment variables for now.
-	var packageSizes []int
-	if err := json.Unmarshal([]byte(packageSizesFromEnv), &packageSizes); err != nil {
-		return nil, fmt.Errorf("error unmarshaling: %s", err)
-	}
-
-	return packageSizes, nil
+	return shippingPackagesSizes, nil
 }
 
-func calculate(e models.ShippingPackageSizeCalculator) ([]models.ShippingPackage, error) {
+func (s ShippingPackageSizeCalculator) calculate(e models.ShippingPackageSizeCalculator) ([]models.ShippingPackage, error) {
 	// Load package sizes from environment variables or database (e.g., DynamoDB).
-	packageSizes, err := loadPackageSizes()
+	packageSizes, err := s.loadPackagesSizes()
 	if err != nil {
 		return nil, err
 	}
@@ -68,6 +65,7 @@ func calculate(e models.ShippingPackageSizeCalculator) ([]models.ShippingPackage
 }
 
 // calculateShippingPackages calculates the number of shipping packages needed for a given number of items and package sizes.
+// Time complexity is O(numberOfItemsOrdered * log(n))
 func calculateShippingPackages(numberOfItemsOrdered int, packageSizes []int) map[int]models.ShippingPackage {
 	shippingPackages := make(map[int]models.ShippingPackage)
 
@@ -111,6 +109,7 @@ func calculateShippingPackages(numberOfItemsOrdered int, packageSizes []int) map
 }
 
 // Prevent wasting packages by checking if the current package size times the additional packages equals the next package size.
+// Time complexity is constant, O(1)
 func preventWastingPackages(currentPackageSize int, nextPackageSize int, currentNumberOfAdditionalPackages int, shippingPackages map[int]models.ShippingPackage) {
 	// Calculate the expected size of the next shipping package.
 	expectedNextPackageSize := currentPackageSize * currentNumberOfAdditionalPackages
@@ -126,7 +125,7 @@ func preventWastingPackages(currentPackageSize int, nextPackageSize int, current
 	}
 }
 
-// findNearestWithIndex finds the nearest element in an integer slice based on the target value.
+// findNearestWithIndex finds the nearest element in an integer slice based on the target value. Time complexity is linear, O(n)
 func findNearestWithIndex(arr []int, target int) (int, int) {
 	if len(arr) == 0 {
 		return -1, -1 // No elements in the array.
